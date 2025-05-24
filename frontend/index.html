@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jokempo - Multiplayer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>🎮 Pedra, Papel ou Tesoura</h1>
+
+     <div id="status">Conectando...</div>
+
+     <div id="placar">
+        <div class="jogador">
+            <h3>Você</h3>
+            <div class="pontos" id="meusPontos">0</div>
+        </div>
+        <div class="vs">VS</div>
+        <div class="jogador">
+            <h3>Oponente</h3>
+            <div class="pontos" id="pontosOponente">0</div>
+        </div>
+     </div>
+
+     <div id="jogo" data-ativo="false">
+        <button data-move="pedra">🗿 Pedra</button>
+         <button data-move="papel">📄 Papel</button>
+         <button data-move="tesoura">✂️ Tesoura</button>
+     </div>
+
+     <div id="resultado"></div>
+    <div id="cronometro"></div>
+    
+</body>
+</html>
