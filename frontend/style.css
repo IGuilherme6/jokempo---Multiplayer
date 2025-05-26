@@ -196,3 +196,71 @@ button:disabled {
     border: 2px solid rgba(255, 215, 0, 0.3);
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+    
+    
+    .opcao {
+        width: 60px;
+        height: 60px;
+        font-size: 0.8rem;
+    }
+    
+    #pedra {
+        left: 95px;
+    }
+    
+    #papel {
+        left: 15px;
+    }
+    
+    #tesoura {
+        right: 15px;
+    }
+    
+    button {
+        padding: 15px 20px;
+        font-size: 1rem;
+    }
+    
+    #jogo {
+        gap: 10px;
+    }
+    
+    #placar {
+        padding: 15px;
+        margin: 15px 0;
+    }
+    
+    .pontos {
+        font-size: 2rem;
+    }
+}
