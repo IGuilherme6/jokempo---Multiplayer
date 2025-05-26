@@ -90,7 +90,7 @@ io.on('connection', (socket) => {
             
             if (gameState.players.length === 1) {
                 io.to(gameState.players[0]).emit('playerDisconnected');
-                io.to(gameState.players[0]).emit('waiting');
+                io.to(gameState.players[0]).emit('espera');
             }
             
             
