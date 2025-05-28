@@ -7,27 +7,25 @@ const io = require('socket.io')(http);
 
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-let gameState = {
-    players: [],
+let EstadoDoJogo = {
+    jogadores: [],
     p1Move: null,
     p2Move: null,
-    scores: {
-        player1: 0,
-        player2: 0
+    placar: {
+        jogador1: 0,
+        jogador2: 0
     }
 };
 
 io.on('connection', (socket) => {
-    console.log('Usuário conectado:', socket.id);
-
-    if (gameState.players.length < 2) {
-        gameState.players.push(socket.id);
-        console.log(`Jogador ${gameState.players.length} conectado:`, socket.id);
+    if (EstadoDoJogo.jogadores.length < 2) {
+        EstadoDoJogo.jogadores.push(socket.id);
+        console.log(`Jogador ${EstadoDoJogo.jogadores.length} conectado:`, socket.id);
         
-        if (gameState.players.length === 2) {//faz com que o jogo só funcione se tiver 2 jogadors on
-            io.to(gameState.players[0]).emit('gameStart');
-            io.to(gameState.players[1]).emit('gameStart');
-            console.log('Jogo iniciado com 2 jogadores');
+        if (EstadoDoJogo.jogadores.length === 2) {//faz com que o jogo só funcione se tiver 2 jogadores on
+            io.to(EstadoDoJogo.jogadores[0]).emit('Start');
+            io.to(EstadoDoJogo.jogadores[1]).emit('Start');
+            console.log('Jogo iniciado');
         } else {
             socket.emit('espera');//se só tem 1 jogador fica esperando
         }
@@ -36,100 +34,109 @@ io.on('connection', (socket) => {
         return;
     }
 
-    socket.on('playerMove', (move) => {
-        const playerIndex = gameState.players.indexOf(socket.id);
+    socket.on('escolhaJogador', (move) => {
+        const jogadorIndex = EstadoDoJogo.jogadores.indexOf(socket.id);
         
-        if (playerIndex === 0) {
-            gameState.p1Move = move;
-            console.log('Player 1 jogou:', move);
-        } else if (playerIndex === 1) {
-            gameState.p2Move = move;
-            console.log('Player 2 jogou:', move);
+        if (jogadorIndex === 0) {
+            EstadoDoJogo.p1Move = move;
+        } else if (jogadorIndex === 1) {
+            EstadoDoJogo.p2Move = move;
         }
 
       
-        if (gameState.p1Move && gameState.p2Move) {//verifica se ambos jogaram
-            const result = determineWinner(gameState.p1Move, gameState.p2Move);
+        if (EstadoDoJogo.p1Move && EstadoDoJogo.p2Move) {//verifica se ambos jogaram
+            const resultado = determinaVencedor(EstadoDoJogo.p1Move, EstadoDoJogo.p2Move);
             
       
-            if (result === 'player1') {//adiciona pontos ao vencedor
-                gameState.scores.player1++;
-            } else if (result === 'player2') {
-                gameState.scores.player2++;
+            if (resultado === 'jogador1') {//adiciona pontos ao vencedor
+                EstadoDoJogo.placar.jogador1++;
+            } else if (resultado === 'jogador2') {
+                EstadoDoJogo.placar.jogador2++;
             }
             
 
-            console.log('Resultado:', result);
-            console.log('Placar:', gameState.scores);
+            console.log('resultado:', resultado);
+            console.log('Placar:', EstadoDoJogo.placar);
 
            
-            const gameResult = {//manda o resultado para os 2 jogadores
-                p1: gameState.p1Move,
-                p2: gameState.p2Move,
-                result,
-                player1: gameState.players[0],
-                player2: gameState.players[1],
-                scores: gameState.scores
+            const resultadojogo = {//manda o resultadoado para os 2 jogadores
+                p1: EstadoDoJogo.p1Move,
+                p2: EstadoDoJogo.p2Move,
+                resultado,
+                jogador1: EstadoDoJogo.jogadores[0],
+                jogador2: EstadoDoJogo.jogadores[1],
+                placar: EstadoDoJogo.placar
             };
 
-            io.to(gameState.players[0]).emit('gameResult', gameResult);
-            io.to(gameState.players[1]).emit('gameResult', gameResult);
+            io.to(EstadoDoJogo.jogadores[0]).emit('resultadojogo', resultadojogo);
+            io.to(EstadoDoJogo.jogadores[1]).emit('resultadojogo', resultadojogo);
 
            //reseta os movimentos para o proximo jogo
-            gameState.p1Move = null;
-            gameState.p2Move = null;
+            EstadoDoJogo.p1Move = null;
+            EstadoDoJogo.p2Move = null;
             }
     });
 
     socket.on('disconnect', () => {
         console.log('Usuário desconectado:', socket.id);
-        const playerIndex = gameState.players.indexOf(socket.id);
+        const jogadorIndex = EstadoDoJogo.jogadores.indexOf(socket.id);
         
-        if (playerIndex !== -1) {
-            gameState.players.splice(playerIndex, 1);
+        if (jogadorIndex !== -1) {
+            EstadoDoJogo.jogadores.splice(jogadorIndex, 1);
             
-            if (gameState.players.length === 1) {
-                io.to(gameState.players[0]).emit('playerDisconnected');
-                io.to(gameState.players[0]).emit('espera');
+            if (EstadoDoJogo.jogadores.length === 1) {
+                io.to(EstadoDoJogo.jogadores[0]).emit('jogadorDisconnectado');
+                io.to(EstadoDoJogo.jogadores[0]).emit('espera');
             }
             
             
-            gameState.p1Move = null;
-            gameState.p2Move = null;
+            EstadoDoJogo.p1Move = null;
+            EstadoDoJogo.p2Move = null;
             
             
-            if (gameState.players.length === 0) {
-                gameState.scores = {
-                    player1: 0,
-                    player2: 0
+            if (EstadoDoJogo.jogadores.length === 0) {
+                EstadoDoJogo.placar = {
+                    jogador1: 0,
+                    jogador2: 0
                 };
             }
             
-            console.log('Jogadores restantes:', gameState.players.length);
+            console.log('Jogadores restantes:', EstadoDoJogo.jogadores.length);
        }
     });
 });
 
-function determineWinner(p1, p2) {
-    if (p1 === p2) return 'empate';
-    
-    const winConditions = {
-        'pedra': 'tesoura',
-        'papel': 'pedra',
-        'tesoura': 'papel'
-    };
-    
-    if (winConditions[p1] === p2) {
-        return 'player1';
+function determinaVencedor(p1, p2) {
+    if (p1 === p2) {
+        return 'empate';
     }
-    return 'player2';
+
+    if (p1 === 'pedra') {
+        if (p2 === 'tesoura') {
+            return 'jogador1';
+        } else {
+            return 'jogador2';
+        }
+    } else if (p1 === 'papel') {
+        if (p2 === 'pedra') {
+            return 'jogador1';
+        } else {
+            return 'jogador2';
+        }
+    } else if (p1 === 'tesoura') {
+        if (p2 === 'papel') {
+            return 'jogador1';
+        } else {
+            return 'jogador2';
+        }
+    }
 }
 
 app.get('/status', (req, res) => {
     res.json({
-        playersConnected: gameState.players.length,
-        scores: gameState.scores,
-        gameActive: gameState.players.length === 2
+        jogadoresConnected: EstadoDoJogo.jogadores.length,
+        placar: EstadoDoJogo.placar,
+        gameActive: EstadoDoJogo.jogadores.length === 2
     });
 });
 

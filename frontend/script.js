@@ -12,13 +12,12 @@ let placarOponente = 0;
 
 const opcoes = document.querySelectorAll('.opcao');
 
-socket.on('connect', () => {
-    console.log('Conectado com ID:', socket.id);
+socket.on('conectado', () => {
     status.textContent = 'Conectado! Aguardando outro jogador...';
     status.style.background = 'rgba(255, 215, 0, 0.3)';
 });
 
-socket.on('gameStart', () => {
+socket.on('Start', () => {
     status.textContent = 'Jogo iniciado! Faça sua jogada.';
     status.style.background = 'rgba(0, 255, 144, 0.3)';
     jogo.dataset.ativo = 'true';
@@ -79,7 +78,7 @@ opcoes.forEach(opcao => {
 });
 
 function enviarJogada(move) {
-    socket.emit('playerMove', move);
+    socket.emit('escolhaJogador', move);
     resultado.textContent = `Você escolheu: ${move}. Aguardando oponente...`;
     resultado.className = '';
     status.textContent = 'Aguardando jogada do oponente...';
@@ -105,22 +104,22 @@ function highlightEscolha(move) {
     }
 }
 
-socket.on('gameResult', ({ p1, p2, result, player1, player2, scores }) => {
+socket.on('resultadojogo', ({ p1, p2, resultado: resultadoRodada, jogador1, jogador2, placar }) => {
     jogo.dataset.ativo = 'false';
     habilitarBotoes(false);
     habilitarOpcoes(false);
     
     let minhaJogada, jogadaOponente;
-    if (socket.id === player1) {
+    if (socket.id === jogador1) {
         minhaJogada = p1;
         jogadaOponente = p2;
-        meuPlacar = scores.player1;
-        placarOponente = scores.player2;
+        meuPlacar = placar.jogador1;
+        placarOponente = placar.jogador2;
     } else {
         minhaJogada = p2;
         jogadaOponente = p1;
-        meuPlacar = scores.player2;
-        placarOponente = scores.player1;
+        meuPlacar = placar.jogador2;
+        placarOponente = placar.jogador1;
     }
 
     animarPlacar(meusPontos, meuPlacar);
@@ -131,8 +130,8 @@ socket.on('gameResult', ({ p1, p2, result, player1, player2, scores }) => {
     
     if (minhaJogada === jogadaOponente) {
         cor = 'orange';
-        textoResultado = `🤝 Empate!<br>Você: ${getEmoji(minhaJogada)} ${minhaJogada} | Oponente: ${getEmoji(jogadaOponente)} ${jogadaOponente}`;
-        status.textContent = 'Resultado: Empate!';
+        textoResultado = `Empate!<br>Você: ${minhaJogada} | Oponente: ${jogadaOponente}`;
+        status.textContent = 'Empate!';
         status.style.background = 'rgba(255, 215, 0, 0.3)';
     } else if (
         (minhaJogada === 'pedra' && jogadaOponente === 'tesoura') ||
@@ -140,16 +139,16 @@ socket.on('gameResult', ({ p1, p2, result, player1, player2, scores }) => {
         (minhaJogada === 'tesoura' && jogadaOponente === 'papel')
     ) {
         cor = 'green';
-        textoResultado = `🎉 Você ganhou!<br>Você: ${getEmoji(minhaJogada)} ${minhaJogada} | Oponente: ${getEmoji(jogadaOponente)} ${jogadaOponente}`;
-        status.textContent = 'Resultado: Você ganhou!';
+        textoResultado = `Você ganhou!<br>Você: ${minhaJogada} | Oponente: ${jogadaOponente}`;
+        status.textContent = 'Você ganhou';
         status.style.background = 'rgba(0, 255, 144, 0.3)';
     } else {
         cor = 'red';
-        textoResultado = `😔 Você perdeu!<br>Você: ${getEmoji(minhaJogada)} ${minhaJogada} | Oponente: ${getEmoji(jogadaOponente)} ${jogadaOponente}`;
-        status.textContent = 'Resultado: Você perdeu!';
+        textoResultado = `Você perdeu!<br>Você: ${minhaJogada} | Oponente: ${jogadaOponente}`;
+        status.textContent = 'Você perdeu!';
         status.style.background = 'rgba(255, 76, 76, 0.3)';
     }
-    
+
     resultado.innerHTML = textoResultado;
     resultado.className = cor;
 
@@ -157,18 +156,10 @@ socket.on('gameResult', ({ p1, p2, result, player1, player2, scores }) => {
         opcao.style.transform = 'scale(1)';
         opcao.style.boxShadow = '0 4px 6px rgba(0,0,0,0.3)';
     });
-    
+
     iniciarContagem();
 });
 
-function getEmoji(jogada) {
-    const emojis = {
-        'pedra': '🗿',
-        'papel': '📄',
-        'tesoura': '✂️'
-    };
-    return emojis[jogada] || '';
-}
 
 function animarPlacar(elemento, novoPlacar) {
     const placarAtual = parseInt(elemento.textContent);
@@ -183,7 +174,7 @@ function animarPlacar(elemento, novoPlacar) {
     elemento.textContent = novoPlacar;
 }
 
-socket.on('playerDisconnected', () => {
+socket.on('jogadorDisconnectado', () => {
     status.textContent = 'Oponente desconectou. Aguardando novo jogador...';
     status.style.background = 'rgba(255, 76, 76, 0.3)';
     jogo.dataset.ativo = 'false';
@@ -202,12 +193,12 @@ socket.on('playerDisconnected', () => {
 
 function iniciarContagem() {
     contagem = 5;
-    cronometro.textContent = `⏱️ Próxima rodada em: ${contagem}s`;
+    cronometro.textContent = `Próxima rodada em: ${contagem}s`;
     
     const intervalo = setInterval(() => {
         contagem--;
         if (contagem <= 0) {
-            clearInterval(intervalo);
+            clearInterval(intervalo);;
             cronometro.textContent = '';
             resultado.textContent = '';
             resultado.className = '';
@@ -216,8 +207,10 @@ function iniciarContagem() {
             habilitarOpcoes(true);
             status.textContent = 'Faça sua jogada!';
             status.style.background = 'rgba(0, 255, 144, 0.3)';
+            return
         } else {
-            cronometro.textContent = `⏱️ Próxima rodada em: ${contagem}s`;
+            cronometro.textContent = `Próxima rodada em: ${contagem}s`;
+         
         }
     }, 1000);
 }
