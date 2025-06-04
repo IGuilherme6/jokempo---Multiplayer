@@ -123,6 +123,9 @@ function determinaVencedor(p1, p2) {
     }
 }
 
+module.exports = { determinaVencedor };
+
+
 const PORT = process.env.PORT || 3000;
 http.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);

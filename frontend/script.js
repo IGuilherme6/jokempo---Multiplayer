@@ -57,7 +57,6 @@ socket.on('assistindo', () => {
 });
 
 function habilitarBotoes(ativo) {
-    // Só habilita os botões se for jogador E estiver ativo
     document.querySelectorAll('#jogo button').forEach(btn => {
         btn.disabled = !ativo || !souJogador;
     });
@@ -137,10 +136,9 @@ socket.on('resultadojogo', ({ p1, p2, resultado: resultadoRodada, jogador1, joga
     } else {
         minhaJogada = p1;
         jogadaOponente = p2;
-        souJogador = false; // espectador
+        souJogador = false; 
     }
 
-    // Atualiza o placar sempre, para jogadores e espectadores
     let meuPlacar, placarOponente;
     if (souJogador) {
         labelMe.textContent = 'Você';
