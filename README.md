@@ -1,38 +1,38 @@
-Funcionalidades
-Dois jogadores podem se conectar e jogar simultaneamente.
+# Jogo Pedra, Papel e Tesoura Online
 
-Jogadores escolhem entre pedra, papel ou tesoura.
+---
 
-O servidor determina o vencedor de cada rodada.
+## Funcionalidades
 
-Placar atualizado em tempo real para ambos os jogadores.
+- Dois jogadores podem se conectar e jogar simultaneamente.
+- Jogadores escolhem entre pedra, papel ou tesoura.
+- O servidor determina o vencedor de cada rodada.
+- Placar atualizado em tempo real para ambos os jogadores.
+- Sistema para espectadores assistirem ao jogo ao vivo.
+- Notificações de status: aguardando jogadores, conexão estabelecida, vitória, derrota e empate.
+- Contador regressivo para a próxima rodada.
 
-Sistema para espectadores assistirem ao jogo ao vivo.
+---
 
-Notificações de status: aguardando jogadores, conexão estabelecida, vitória, derrota e empate.
+## Tecnologias usadas
 
-Contador regressivo para a próxima rodada.
+- Node.js  
+- Express  
+- Socket.io  
+- HTML/CSS/JavaScript (frontend)  
 
-Tecnologias usadas
-Node.js
+---
 
-Express
+## Como rodar o projeto
 
-Socket.io
+### Pré-requisitos
 
-HTML/CSS/JavaScript (frontend)
+- Node.js instalado (versão 14 ou superior recomendada)  
+- npm (gerenciador de pacotes do Node.js)  
 
-Como rodar o projeto
-Pré-requisitos
-Node.js instalado (versão 14 ou superior recomendada)
-
-npm (gerenciador de pacotes do Node.js)
+### Passos
 
 git clone https://github.com/IGuilherme6/jokempo---Multiplayer.git
-
+cd jokempo---Multiplayer
 npm install
-
-execulte com 
 node backend/index.js
-
-abra no navegador http://localhost:3000
